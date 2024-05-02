@@ -1,0 +1,19 @@
+{
+  "databases": {
+    "db1": {
+      "name": "testdb1",
+      "key": "1234",
+      "data": {
+        "test": "Testdata"
+      }
+    },
+    "db2": {
+      "key": "123",
+      "data": {}
+    },
+    "db3": {
+      "key": "123",
+      "data": {}
+    }
+  }
+}
