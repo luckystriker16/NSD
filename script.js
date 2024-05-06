@@ -59,7 +59,7 @@ websocket = {
             console.warn("NO Callback");
             console.log(message);
             console.log(JSON.parse(message.data));
-            document.getElementById("dataDisplay").innerHTML = message.data;
+            //document.getElementById("dataDisplay").innerHTML = message.data;
             return message.data;
         }
     },
@@ -112,3 +112,5 @@ info = {
         return true;
     },
 }
+
+console.log("websocket initiiert");
