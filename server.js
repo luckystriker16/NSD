@@ -16,9 +16,14 @@ const port = 3000;
 const clients = new Set();
 
 const server = http.createServer((req, res) => {
-  res.statusCode = 200;
-  res.setHeader('Content-Type', 'text/plain');
-  wss.handleUpgrade(req, req.socket, Buffer.alloc(0), onSocketConnect);
+  try{
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'text/plain');
+    wss.handleUpgrade(req, req.socket, Buffer.alloc(0), onSocketConnect);
+  }
+  catch(err){
+    console_log("Kritischer Fehler bei der Serverinitialisierung. Tritt z.B. auch auf, wenn jemand versucht über die Adressleiste des Browsers auf den Server zuzugreifen.", "server = http.createServer", "critical");
+  }
 });
 
 server.listen(port, hostname, () => {
@@ -100,7 +105,7 @@ function inputHandler(input, ws){ //Einstellungen laden und Sicherheitsfilter 1
     }
     //Optioal: Antwort bei zu niedrigem Sicherheitslevel für alle Aktionen
     if(userSecurityLevel < 2){
-      return new ReturnValue("error", undefined, "Sicherheitslevel zu gering für Funktionsverarbeitungen.").asString();
+      return new ReturnValue("error", undefined, "Sicherheitslevel zu gering für Funktionsverarbeitungen. Bitte verwende einen accessKey.").asString();
     }
   }
   catch(err){
@@ -147,6 +152,24 @@ function commandHandler(input, ws){ //Commands und Freigaben
       return new ReturnValue("data","Infotext").asString();
     }else if(input.command == "changeDatabase" && userSecurityLevel >= 2){ //changeDatabase
       return manipulateDatabase(input, ws);
+    }else if(input.command == "checkIdAvail" && userSecurityLevel >= 2){ //checkIdAvail
+      if(input.id){
+        return checkIdAvail(input, ws);
+      }else{
+        return new ReturnValue("error", null, "Nicht genug Argumente angegeben").asString();
+      }
+    }else if(input.command == "saveNSD" && userSecurityLevel >= 2){ //checkIdAvail
+      if(input.id && input.type && input.data){
+        return saveNSD(input, ws);
+      }else{
+        return new ReturnValue("error", null, "Nicht genug Argumente angegeben").asString();
+      }
+    }else if(input.command == "loadNSD" && userSecurityLevel >= 2){ //checkIdAvail
+      if(input.id && input.type){
+        return loadNSD(input, ws);
+      }else{
+        return new ReturnValue("error", null, "Nicht genug Argumente angegeben").asString();
+      }
     }else{
       console_log("Ungültiger Befehl: "+ input.command +" | Oder unzureichende Sicherheitsstufe: "+ userSecurityLevel,"commandHandler", "warn", ws._socket.remoteAddress);
       return new ReturnValue("error", undefined, "commandHandler Error: "+"Ungültiger Befehl: "+ input.command +" | Oder unzureichende Sicherheitsstufe: "+ userSecurityLevel,"commandHandler").asString();
@@ -161,14 +184,19 @@ function commandHandler(input, ws){ //Commands und Freigaben
 function accessDatabase(input, ws){ //Daten aus Database auslesen
   try{
     var database = JSON.parse(fs.readFileSync('databases.json')).databases;
-    if(input.key == database[input.database_name].key){
-      console_log("Zugriff auf "+ input.database_name +" mit dem key "+ input.key +" gewährt.", "accessDatabase", undefined, ws._socket.remoteAddress);
-      var returning = database[input.database_name];
+    if(database[input.database_name]){
+      if(input.key == database[input.database_name].key){
+        console_log("Zugriff auf "+ input.database_name +" mit dem key "+ input.key +" gewährt.", "accessDatabase", undefined, ws._socket.remoteAddress);
+        var returning = database[input.database_name];
+      }else{
+        console_log("User hat erfolglos versucht die Database mit id: "+ input.database_name +" und key: "+ input.key +" zu öffnen","accessDatabase", "warn", ws._socket.remoteAddress);
+        return new ReturnValue("error", null, "Key oder id Falsch").asString();
+      }
+      return new ReturnValue("database", returning).asString();
     }else{
-      console_log("User hat erfolglos versucht die Database mit id: "+ input.database_name +" und key: "+ input.key +" zu öffnen","accessDatabase", "warn", ws._socket.remoteAddress);
-      return new ReturnValue("error", null, "Key oder id Falsch").asString();
+      console_log("Database "+ input.database_name +" nicht gefunden","accessDatabase", "warn", ws._socket.remoteAddress);
+      return new ReturnValue("error", undefined, "Database nicht gefunden").asString();
     }
-    return new ReturnValue("database", returning).asString();
   }
   catch(err){
     console_log(err,"accessDatabase", "warn", ws._socket.remoteAddress);
@@ -196,6 +224,74 @@ function manipulateDatabase(input, ws){ //Daten einer Database ändern
   }
 }
 
+
+
+function saveNSD(input, ws){
+  try{
+    console.log(ws._socket.remoteAddress);
+    var databases_base = JSON.parse(fs.readFileSync("databases.json"));
+    var databases = databases_base.databases;
+    if(isDatabase(input.id)){
+      var database = databases[input.id];
+      if(database.type == "open"){
+        database.date = new Date();
+        database.ips.push(ws._socket.remoteAddress);
+        database.data = input.data;
+      }else if(database.type == "protected"){
+        if(input.key){
+          if(database.key == input.key){
+            database.date = new Date();
+            database.ips.push(ws._socket.remoteAddress);
+            database.data = input.data;
+          }else{
+            console_log("Key ungültig", "saveNSD", "warn");
+            return new ReturnValue("error", undefined, "Key ungültig").asString();
+          }
+        }else{
+          console_log("Key für zugriff erforderlich, aber nicht übermittelt", "saveNSD");
+          return new ReturnValue("error", undefined, "Key für zugriff erforderlich, aber nicht übermittelt").asString();
+        }
+      }
+    }else{
+      console_log("creating new DB", "saveNSD");
+      databases[input.id] = new NSDDatabase(input.type, input.data, input.key, ws._socket.remoteAddress);
+    }
+    fs.writeFileSync("databases.json", JSON.stringify(databases_base, null, 2));
+    return loadNSD(input, ws);
+  }
+  catch(err){
+    console_log(err,"saveNSD", "warn", ws._socket.remoteAddress);
+    return new ReturnValue("error", err, "saveNSD Error").asString();
+  }
+}
+
+function loadNSD(input, ws){
+  try{
+    var databases_base = JSON.parse(fs.readFileSync("databases.json"));
+    var databases = databases_base.databases;
+    console.log(databases_base);
+    if(isDatabase(input.id)){
+      var database = databases[input.id];
+      if(database.type == "open"){
+        return new ReturnValue("data", databases[input.id].data).asString();
+      }else if(database.type == "protected"){
+        if(input.key == database.key){
+          return new ReturnValue("data", databases[input.id].data).asString();
+        }
+      }
+    }else{
+      console_log("Database existiert nicht", "loadNSD");
+      return new ReturnValue("error", undefined, "Database existiert nicht").asString();
+    }
+  }
+  catch(err){
+    console_log(err,"loadNSD", "warn", ws._socket.remoteAddress);
+    return new ReturnValue("error", err, "loadNSD Error").asString();
+  }
+}
+
+
+
 function createDatabase(id, key, name, input, ws){ //neue Databse erstellen
   try{
     var databases = JSON.parse(fs.readFileSync("databases.json"));
@@ -216,8 +312,40 @@ function createDatabase(id, key, name, input, ws){ //neue Databse erstellen
   }
 }
 
+function checkIdAvail(input, ws){
+  try{
+    console_log(isDatabase(input.id));
+    if(isDatabase(input.id)){
+      return new ReturnValue("data", true).asString();
+    }else{
+      return new ReturnValue("data", false).asString();
+    }
+  }
+  catch(err){
+    console_log(err,"checkIdAbail", "warn", ws._socket.remoteAddress);
+    return new ReturnValue("error", err, "checkIdAvail Error").asString();
+  }
+}
+
+function isDatabase(databaseId){ //Gibt zurück, ob bereits eine Database mit dieser Id existiert
+  try{
+    var databases = Object.keys(JSON.parse(fs.readFileSync('databases.json')).databases);
+    var flag = false;
+    databases.forEach((database)=>{
+      if(database == databaseId){
+        flag = true;
+      }
+    });
+    return flag;
+  }
+  catch(err){
+    console_log(err,"accessDatabase", "warn", ws._socket.remoteAddress);
+    //return new ReturnValue("error", err, "isDatabaseName Error").asString();
+  }
+}
+
 class ReturnValue{
-  constructor(type, value1, value2){
+  constructor(type, value1, value2, value3){
     this.type = type;
     if(type == "error"){
       if(value1 == null||value1 == undefined){
@@ -227,7 +355,8 @@ class ReturnValue{
         error:{
           name:value1.name,
           message:value1.message,
-          context: value2
+          context: value2,
+          code: value3
         }
       }
     }else if(type == "data"){
@@ -246,10 +375,25 @@ class ReturnValue{
 }
 
 class Database{
-  constructor(key, name){
+  constructor(key, name, type){
     this.name = name;
     this.key = key;
+    this.type = type; //Types: [undefined: - id und key für zugriff benötigt] | ["open": - Zugriff auch ohne key, nur mit id,  möglich]
     this.data = {};
+  }
+}
+
+class NSDDatabase{
+  constructor(type, data, key, ip){
+    this.key = key; 
+    this.type = type; //Types: [undefined: - id und key für zugriff benötigt] | ["open": - Zugriff auch ohne key, nur mit id,  möglich]
+    this.data = data;
+    this.date = new Date();
+    this.ips = [];
+    this.ips.push(ip);
+    if(type == "protected" && !key){
+      this.type = "open";
+    }
   }
 }
 

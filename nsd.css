@@ -1,0 +1,52 @@
+*{
+    font-family: calibri;
+}
+
+button{
+    cursor:pointer;
+}
+
+#info_container{
+    position: fixed;
+    left:50%;
+    bottom:10px;
+    transform:translate(-50%,0);
+    background-color: green;
+    border-radius: 10px;
+    text-align: center;
+    padding: 10px;
+    opacity: 0;
+    transition: opacity 0.5s;
+    font-weight: bold;
+    box-shadow: 0px 0px 20px 2px #000000;
+}
+
+#error_container{
+    position: fixed;
+    left:50%;
+    bottom:10px;
+    transform:translate(-50%,0);
+    background-color: red;
+    border-radius: 10px;
+    text-align: center;
+    padding: 10px;
+    opacity: 0;
+    transition: opacity 0.5s;
+    font-weight: bold;
+    box-shadow: 0px 0px 20px 2px #000000;
+}
+
+#nsdOverlay{
+    position: absolute;
+    top:50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    background-color: gray;
+    padding: 20px;
+    display: flex;
+    border-radius: 10px;
+}
+
+#nsdOverlay h1{
+    text-align: center;
+}

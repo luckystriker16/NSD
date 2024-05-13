@@ -16,6 +16,7 @@ websocket = {
         socket = new WebSocket("ws://127.0.0.1:3000");
 
         socket.onopen = (e)=>{
+            loadNSD();
             console.log("Websocket ready");
             info.show("Verbindung Hergestellt");
         }
@@ -55,7 +56,8 @@ websocket = {
             this.callback.reset("current");
             window[callback](message);
         }
-        catch{
+        catch(err){
+            console.error(err);
             console.warn("NO Callback");
             console.log(message);
             console.log(JSON.parse(message.data));
