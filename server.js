@@ -339,7 +339,7 @@ function isDatabase(databaseId){ //Gibt zurück, ob bereits eine Database mit di
     return flag;
   }
   catch(err){
-    console_log(err,"accessDatabase", "warn", ws._socket.remoteAddress);
+    console_log(err,"isDatabase", "warn", ws._socket.remoteAddress);
     //return new ReturnValue("error", err, "isDatabaseName Error").asString();
   }
 }
