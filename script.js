@@ -36,7 +36,7 @@ websocket = {
             this.callback.manage(callback);
         }
         if(typeof message != "string"){
-            message = prepareMessage(message);
+            message = this.prepareMessage(message);
         }
 
         try{
