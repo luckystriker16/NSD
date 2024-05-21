@@ -10,8 +10,9 @@ async function init(){ //Erforderliche Dateien und HTML laden ---->>>>>> ALT
     console.log("NSD initiiert");
 }
 
-var port = 53447;
-var wsAdress = "ws://127.0.0.1:3000";
+const srcAdress = "127.0.0.1";
+const port = 60367;
+const wsAdress = "ws://nsd2.servebeer.com:25565";
 
 
 window.onload = ()=>{
@@ -21,38 +22,158 @@ window.onload = ()=>{
 
 nsdCloud = {
     init(){
-        cssLoader(`http://127.0.0.1:${port}/nsd.css`);
+        cssLoader(`https://luckyapps.github.io/NSD/nsd.css`);
 
         document.body.appendChild(createHTML('<div id="info_container"></div>'));
         document.body.appendChild(createHTML('<div id="error_container"></div>'));
+        document.body.appendChild(createHTML(`<div id="nsdOverlay" class="nsd_opened">
+        <div id="nsdOverlay_close">X</div>
+        <h1>Willkommen beim NSD Generator</h1>
+        <div class="nsdLoadCloud">
+            <h2>NSD aus der Cloud Laden</h2>
+            <p>Id</p>
+            <input id="nsdIdInput"></input>
+            <p>Key (optional)</p>
+            <input id="nsdKeyInput"></input>
+            <hr width="100%">
+            <button onclick="nsdCloud.loadNSD()">Senden</button>
+        </div>
+    </div>`));
+        document.body.appendChild(createHTML(`
+            <div id="nsdCloudSave">
+                <h4>In der Cloud speichern</h4>
+                <p>Id: <input id="nsdSaveIdInput"></input></p>
+                <p>Key(optional): <input id="nsdSaveKeyInput"></input></p>
+                <button onclick="nsdCloud.saveNSD()">Speichern</button>
+            </div>
+        `));
+
+        document.getElementById("nsdOverlay_close").addEventListener("click",()=>{
+            nsdCloud.hideUI();
+        });
 
         console.log("NSD initiiert");
 
         websocket.connect(wsAdress);
         websocket.onload = ()=>{
             //loadNSD() ...... Hier Programm starten
+            this.start();
         }
         websocket.onmessage = (message)=>{
             console.log(message);
+            this.handleMessage(message);
         }
     },
     start(){
         console.log(urlData);
-        message = {
-            command: "loadNSD",
-            id: "TEST6",
-            type: "protected",
-            key: "234",
-            data: {"MOIN": false}
+        if(urlData.id){
+            this.hideUI();
+            message = {
+                command: "loadNSD",
+                id: urlData.id
+            }
+            if(urlData.key){
+                message.key = urlData.key;
+            }
+            websocket.send(message, "nsdHandleMessage");
+        }else{
+            this.showUI();
         }
-        websocket.send(message, "nsdHandleMessage");
+    },
+    handleMessage(message){
+        if(message.type == "error"){
+            this.handleError(message);
+        }else if(message.type == "data"){
+            this.showNSD(message.data);
+        }
     },
     handleError(message){
-        if(message.data.error){
+        if(message.type == "error"){
             var err = message.data.error;
             error.show(err.context);
         }
+    },
+    showUI(){
+        var ui = document.getElementById("nsdOverlay");
+        ui.classList.add("nsd_opened");
+        ui.classList.remove("nsd_closed");
+    },
+    hideUI(){
+        var ui = document.getElementById("nsdOverlay");
+        ui.classList.remove("nsd_opened");
+        ui.classList.add("nsd_closed");
+    },
+    saveNSD(data){
+        console.log("saveNSD noch nicht verfügbar");
+        var idInput = document.getElementById("nsdSaveIdInput");
+        var keyInput = document.getElementById("nsdSaveKeyInput");
+        if(window.location.origin == "https://editor.p5js.org"){
+            data = fields;
+        }else{
+            data = {"Placeholder": true}
+        }
+        if(idInput.value != ""){
+            message = {
+                command: "saveNSD",
+                type: "open",
+                id: idInput.value,
+                data: data
+            }
+            if(keyInput.value != ""){
+                message.type = "protected",
+                message.key = keyInput.value;
+            }
+            console.log(message);
+            websocket.send(message);
+            info.show("Anfrage gesendet");
+        }else{
+            console.log("Keine Id angegeben");
+            error.show("Keine Id angegeben");
+        }
+    },
+    loadNSD(){
+        var idInput = document.getElementById("nsdIdInput");
+        var keyInput = document.getElementById("nsdKeyInput");
+        if(idInput.value != ""){
+            message = {
+                command: "loadNSD",
+                id: idInput.value
+            }
+            if(keyInput.value != ""){
+                message.key = keyInput.value;
+            }
+            websocket.send(message);
+            info.show("Anfrage gesendet");
+            this.hideUI();
+        }else{
+            console.log("Keine Id angegeben");
+            error.show("Keine Id angegeben");
+        }
+    },
+    showNSD(data){
+        console.log(data);
+        if(window.location.origin == "https://editor.p5js.org"){
+            console.log("Injeziere NSD")
+            // CODE VON NICKs NSD GENERATOR
+            let parsedSafeState = data;
+            fields = [];
+            titleInput.value(parsedSafeState.shift());
+            widthSlider.value(parsedSafeState.shift());
+            for(let i = 0; i < parsedSafeState.length; i++){
+              let tempObj = parseObject(parsedSafeState[i]);
+              if(tempObj != null){
+                fields.push(tempObj);
+              }
+            }
         
+            for(let i = 0; i < fields.length; i ++){
+              fields[i].selected = true;
+              fields[i].display();
+              fields[i].selected = false;
+            }
+        }else{
+            console.log("Seite ist nicht p5.js");
+        }
     }
 }
 
@@ -71,6 +192,11 @@ websocket = {
 
         socket.onmessage = (message)=>{
             this.handleMessage(message);
+        }
+
+        socket.onerror = (err)=>{
+            console.error(`Websocket error`);
+            error.show("Ein unbekannter Socketerror ist aufgetreten.");
         }
     },
     send(data){

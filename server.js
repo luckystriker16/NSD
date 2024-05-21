@@ -10,8 +10,8 @@ const ws = new require('ws');
 const wss = new ws.Server({noServer: true});
 const http = require('http');
 
-const hostname = '127.0.0.1';
-const port = 3000;
+const hostname = '2a02:8108:54bf:f8cc:afe3:dbfc:3e:9df9';
+const port = 25565;
 
 const clients = new Set();
 
@@ -159,13 +159,16 @@ function commandHandler(input, ws){ //Commands und Freigaben
         return new ReturnValue("error", null, "Nicht genug Argumente angegeben").asString();
       }
     }else if(input.command == "saveNSD" && userSecurityLevel >= 2){ //checkIdAvail
+      console.log(input.type);
+      console.log(input.type);
+      console.log(input.data);
       if(input.id && input.type && input.data){
         return saveNSD(input, ws);
       }else{
         return new ReturnValue("error", null, "Nicht genug Argumente angegeben").asString();
       }
     }else if(input.command == "loadNSD" && userSecurityLevel >= 2){ //checkIdAvail
-      if(input.id && input.type){
+      if(input.id /*&& input.type*/){
         return loadNSD(input, ws);
       }else{
         return new ReturnValue("error", null, "Nicht genug Argumente angegeben").asString();

@@ -39,15 +39,62 @@ button{
 
 #nsdOverlay{
     position: absolute;
-    top:50%;
-    left: 50%;
-    transform: translate(-50%,-50%);
     background-color: gray;
     padding: 20px;
     display: flex;
+    flex-direction: column;
     border-radius: 10px;
+    -webkit-box-shadow: 5px 5px 44px 5px #000000; 
+    box-shadow: 5px 5px 44px 5px #000000;
+}
+
+.nsd_opened{
+    top:50%;
+    right: 50%;
+    transform: translate(50%,-50%);
+}
+
+.nsd_closed{
+    display: none !important;
+    top:0%;
+    right: 0%;
+    transform: translate(0,0);
+    width: 10px  !important;
+    height: 10px !important;
+    overflow: hidden;
+}
+
+
+
+#nsdOverlay_close{
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    color: red;
+    font-size: 30px;
+    cursor: pointer;
 }
 
 #nsdOverlay h1{
     text-align: center;
+}
+
+.nsdLoadCloud{
+    background-color: rgb(65, 65, 65);
+    padding: 5px;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+}
+
+.nsdLoadCloud p{
+    margin:0;
+}
+
+#nsdCloudSave{
+    background: wheat;
+    padding: 10px;
+    border-radius: 10px;
 }
