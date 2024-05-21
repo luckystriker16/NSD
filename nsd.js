@@ -12,7 +12,7 @@ async function init(){ //Erforderliche Dateien und HTML laden ---->>>>>> ALT
 
 const srcAdress = "127.0.0.1";
 const port = 60367;
-const wsAdress = "ws://nsd2.servebeer.com:25565";
+const wsAdress = "wss://nsd2.servebeer.com:25565";
 
 
 window.onload = ()=>{
