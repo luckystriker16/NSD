@@ -46,6 +46,13 @@ nsdCloud = {
             data: {"MOIN": false}
         }
         websocket.send(message, "nsdHandleMessage");
+    },
+    handleError(message){
+        if(message.data.error){
+            var err = message.data.error;
+            error.show(err.context);
+        }
+        
     }
 }
 
