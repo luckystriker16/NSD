@@ -22,7 +22,7 @@ window.onload = ()=>{
 
 nsdCloud = {
     init(){
-        cssLoader(`https://luckyapps.github.io/NSD/nsd.css`);
+        cssLoader(`https://luckystriker16.github.io/NSD/nsd.css`);
 
         document.body.appendChild(createHTML('<div id="info_container"></div>'));
         document.body.appendChild(createHTML('<div id="error_container"></div>'));
