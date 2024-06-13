@@ -118,6 +118,28 @@
       "ips": [
         "2a02:8108:54bf:f8cc:afe3:dbfc:3e:9df9"
       ]
+    },
+    "mytest": {
+      "type": "open",
+      "data": "[\"Nassi-Shneidermann Diagramm\",730,{\"type\":\"hidden\",\"x\":20,\"y\":0,\"w\":690,\"h\":50,\"connectors\":[{\"x\":20,\"y\":50,\"w\":690}],\"selected\":false},{\"type\":\"process\",\"x\":20,\"y\":50,\"w\":690,\"h\":30,\"selected\":false,\"selected_old\":false,\"connected\":{\"x\":20,\"y\":50,\"w\":690},\"content\":\"C = A + B\",\"connectors\":[{\"x\":20,\"y\":80,\"w\":690}]},{\"type\":\"if\",\"content\":\"Abzweigungsbedingung\",\"x\":20,\"y\":80,\"w\":690,\"h\":90,\"options\":\"1;1\\n2;1\\nØ;1\",\"subfieldspacing\":60,\"selected\":true,\"selected_old\":true,\"connected\":{\"x\":20,\"y\":80,\"w\":690},\"connectors\":[{\"x\":20,\"y\":230,\"w\":690},{\"x\":20,\"y\":170,\"w\":230},{\"x\":250,\"y\":170,\"w\":230},{\"x\":480,\"y\":170,\"w\":230}]}]",
+      "date": "2024-06-13T16:43:31.909Z",
+      "ips": [
+        "2a02:8108:54bf:f8cc:afe3:dbfc:3e:9df9",
+        "2a02:8108:54bf:f8cc:afe3:dbfc:3e:9df9",
+        "2a02:8108:54bf:f8cc:afe3:dbfc:3e:9df9",
+        "2a02:8108:54bf:f8cc:afe3:dbfc:3e:9df9",
+        "2a02:8108:54bf:f8cc:afe3:dbfc:3e:9df9",
+        "2a02:8108:54bf:f8cc:afe3:dbfc:3e:9df9"
+      ]
+    },
+    "mytest2": {
+      "key": "123",
+      "type": "protected",
+      "data": "[\"Nassi-Shneidermann Diagramm\",730,{\"type\":\"hidden\",\"x\":20,\"y\":0,\"w\":690,\"h\":50,\"connectors\":[{\"x\":20,\"y\":50,\"w\":690}],\"selected\":false},{\"type\":\"process\",\"x\":20,\"y\":50,\"w\":690,\"h\":30,\"selected\":false,\"selected_old\":false,\"connected\":false,\"content\":\"C = A + B\",\"connectors\":[{\"x\":20,\"y\":80,\"w\":690}]},{\"type\":\"if\",\"content\":\"Abzweigungsbedingung\",\"x\":20,\"y\":80,\"w\":690,\"h\":90,\"options\":\"1;1\\n2;1\\nØ;1\",\"subfieldspacing\":60,\"selected\":false,\"selected_old\":false,\"connected\":false,\"connectors\":[{\"x\":20,\"y\":230,\"w\":690},{\"x\":20,\"y\":170,\"w\":230},{\"x\":250,\"y\":170,\"w\":230},{\"x\":480,\"y\":170,\"w\":230}]},{\"type\":\"checkfirstloop\",\"content\":\"Abbruchsbedingung\",\"x\":20,\"y\":170,\"w\":230,\"h\":60,\"selected\":true,\"selected_old\":true,\"connected\":{\"x\":20,\"y\":170,\"w\":230},\"connectors\":[{\"x\":20,\"y\":230,\"w\":230},{\"x\":43,\"y\":200,\"w\":207}]}]",
+      "date": "2024-06-13T16:44:37.561Z",
+      "ips": [
+        "2a02:8108:54bf:f8cc:afe3:dbfc:3e:9df9"
+      ]
     }
   }
 }

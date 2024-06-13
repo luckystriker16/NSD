@@ -1,3 +1,11 @@
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').then((registration) => {
+      console.log('Service Worker registriert mit Scope:', registration.scope);
+    }).catch((error) => {
+      console.log('Service Worker Registrierung fehlgeschlagen:', error);
+    });
+  }
+
 async function init(){ //Erforderliche Dateien und HTML laden ---->>>>>> ALT
     //cssLoader("http://127.0.0.1:60312/style.css");
     cssLoader(`http://127.0.0.1:${port}/nsd.css`);
@@ -22,7 +30,7 @@ window.onload = ()=>{
 
 nsdCloud = {
     init(){
-        cssLoader(`https://luckystriker16.github.io/NSD/nsd.css`);
+        cssLoader(`../nsd.css`);
 
         document.body.appendChild(createHTML('<div id="info_container"></div>'));
         document.body.appendChild(createHTML('<div id="error_container"></div>'));
@@ -107,8 +115,11 @@ nsdCloud = {
         console.log("saveNSD noch nicht verfügbar");
         var idInput = document.getElementById("nsdSaveIdInput");
         var keyInput = document.getElementById("nsdSaveKeyInput");
-        if(window.location.origin == "https://editor.p5js.org"){
-            data = fields;
+        if(/*window.location.origin == "https://editor.p5js.org"*/true){ 
+            fields.unshift(widthSlider.value());
+            fields.unshift(titleInput.value());
+             let stringifiedSafeState = JSON.stringify(fields);
+            data = stringifiedSafeState;
         }else{
             data = {"Placeholder": true}
         }
@@ -152,9 +163,11 @@ nsdCloud = {
     },
     showNSD(data){
         console.log(data);
-        if(window.location.origin == "https://editor.p5js.org"){
+        if(/*window.location.origin == "https://editor.p5js.org"*/true){
             console.log("Injeziere NSD")
             // CODE VON NICKs NSD GENERATOR
+            data = JSON.parse(data);
+            console.log(data);
             let parsedSafeState = data;
             fields = [];
             titleInput.value(parsedSafeState.shift());

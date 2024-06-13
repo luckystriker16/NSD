@@ -38,6 +38,7 @@ button{
 
 
 #nsdOverlay{
+    z-index: 999;
     position: absolute;
     background-color: gray;
     padding: 20px;
@@ -97,4 +98,6 @@ button{
     background: wheat;
     padding: 10px;
     border-radius: 10px;
+    position: absolute;
+    top: 650px;
 }
