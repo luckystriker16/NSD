@@ -14,7 +14,7 @@ if %ERRORLEVEL% neq 0 (
     echo %PACKAGE_NAME% ist bereits installiert.
 )
 
-cd "C:\Users\ole\Documents\GitHub\NSD\"
+cd %~dp0
 
 :: Starte http-server und leite die Ausgabe in eine Datei um
 start "" cmd /c "http-server > server_output.txt 2>&1"

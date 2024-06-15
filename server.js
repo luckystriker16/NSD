@@ -280,6 +280,8 @@ function loadNSD(input, ws){
       }else if(database.type == "protected"){
         if(input.key == database.key){
           return new ReturnValue("data", databases[input.id].data).asString();
+        }else{
+          return new ReturnValue("error", undefined, "Zugriff zu NSD verweigert").asString();
         }
       }
     }else{
